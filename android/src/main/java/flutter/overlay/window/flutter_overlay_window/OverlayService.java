@@ -1,6 +1,8 @@
 
 package flutter.overlay.window.flutter_overlay_window;
 
+import static flutter.overlay.window.flutter_overlay_window.WindowSetup.height;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -66,6 +68,7 @@ public class OverlayService extends Service implements View.OnTouchListener {
 //            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
             ;
 
+
     private Handler mAnimationHandler = new Handler();
     private float lastX, lastY;
     private int lastYPosition;
@@ -74,6 +77,27 @@ public class OverlayService extends Service implements View.OnTouchListener {
     private Point szWindow = new Point();
     private Timer mTrayAnimationTimer;
     private TrayAnimationTimerTask mTrayTimerTask;
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (windowManager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                windowManager.getDefaultDisplay().getSize(szWindow);
+            } else {
+                DisplayMetrics displaymetrics = new DisplayMetrics();
+                windowManager.getDefaultDisplay().getMetrics(displaymetrics);
+                int w = displaymetrics.widthPixels;
+                int h = displaymetrics.heightPixels;
+                szWindow.set(w, h);
+            }
+
+            Log.d("closest", "after resize " + szWindow.toString());
+        }
+        Log.d("closest", "Configuration has changed");
+
+    }
 
     @Nullable
     @Override
@@ -84,7 +108,7 @@ public class OverlayService extends Service implements View.OnTouchListener {
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onDestroy() {
-        Log.d("OverLay", "Destroying the overlay window service");
+        Log.d("OverLay", "Destroying the overlay window service now");
         isRunning = false;
         NotificationManager notificationManager = (NotificationManager)
                 getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -149,11 +173,13 @@ public class OverlayService extends Service implements View.OnTouchListener {
             windowManager.getDefaultDisplay().getMetrics(displaymetrics);
             int w = displaymetrics.widthPixels;
             int h = displaymetrics.heightPixels;
+
             szWindow.set(w, h);
         }
+        Log.d("closest","before resize "+ szWindow.toString());
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowSetup.width == -1999 ? -1 : WindowSetup.width,
-                WindowSetup.height != -1999 ? WindowSetup.width : screenHeight(),
+                height != -1999 ? WindowSetup.width : screenHeight(),
                 0,
                 -statusBarHeightPx(),
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?

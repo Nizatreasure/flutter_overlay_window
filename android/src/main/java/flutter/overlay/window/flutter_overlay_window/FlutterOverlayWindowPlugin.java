@@ -35,11 +35,15 @@ public class FlutterOverlayWindowPlugin implements
         PluginRegistry.ActivityResultListener {
 
     private MethodChannel channel;
-    private Context context;
+    private static Context context;
     private Activity mActivity;
     private BasicMessageChannel<Object> messenger;
     private Result pendingResult;
     final int REQUEST_CODE_FOR_OVERLAY_PERMISSION = 1248;
+
+     public static Context getContext() {
+        return context;
+    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
